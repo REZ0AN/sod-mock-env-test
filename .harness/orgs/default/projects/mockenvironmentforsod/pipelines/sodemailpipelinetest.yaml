@@ -20,12 +20,6 @@ pipeline:
         type: CI
         spec:
           cloneCodebase: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
           execution:
             steps:
               - step:
@@ -80,3 +74,9 @@ pipeline:
                       SMTP_PASSWORD: <+secrets.getValue("smtp_password")>
                       SMTP_FROM: <+secrets.getValue("smtp_from")>
                     privileged: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
