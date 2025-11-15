@@ -25,7 +25,7 @@ pipeline:
             spec:
               type: Pool
               spec:
-                poolName: docker-test-delegate
+                poolName: account.docker-test-delegate
                 os: Linux
           execution:
             steps:
