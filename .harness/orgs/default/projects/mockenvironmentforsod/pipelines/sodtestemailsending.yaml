@@ -80,3 +80,36 @@ pipeline:
                       SMTP_PASSWORD: <+secrets.getValue("smtp_password")>
                       SMTP_FROM: <+secrets.getValue("smtp_from")>
                     privileged: true
+trigger:
+  name: Env Template Change Trigger
+  identifier: env_template_trigger
+  enabled: true
+  
+  orgIdentifier: default
+  projectIdentifier: mockenvironmentforsod
+  pipelineIdentifier: sodtestemailsending
+  
+  source:
+    type: Webhook
+    spec:
+      type: Github
+      spec:
+        type: Push
+        connectorRef: githubconnectorREZ0AN
+        autoAbortPreviousExecutions: false
+        
+        payloadConditions:
+          - key: targetBranch
+            operator: Equals
+            value: main
+          
+          # Check if .env.template is in modified files
+          - key: <+trigger.payload.commits[0].modified>
+            operator: In
+            value: .env.example
+        
+        headerConditions: []
+  
+  inputYaml: |
+    pipeline:
+      identifier: sodtestemailsending
