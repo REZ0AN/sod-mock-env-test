@@ -20,6 +20,13 @@ pipeline:
         type: CI
         spec:
           cloneCodebase: true
+          infrastructure:
+            type: VM
+            spec:
+              type: Pool
+              spec:
+                poolName: docker-test-delegate
+                os: Linux
           execution:
             steps:
               - step:
@@ -74,9 +81,3 @@ pipeline:
                       SMTP_PASSWORD: <+secrets.getValue("smtp_password")>
                       SMTP_FROM: <+secrets.getValue("smtp_from")>
                     privileged: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
