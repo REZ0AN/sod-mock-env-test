@@ -1,0 +1,82 @@
+pipeline:
+  name: sod-test-email-sending
+  identifier: sodtestemailsending
+  projectIdentifier: mockenvironmentforsod
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: githubconnectorREZ0AN
+        repoName: sod-mock-env-test
+        build:
+          type: branch
+          spec:
+            branch: main
+  stages:
+    - stage:
+        name: Build and Run
+        identifier: build_run
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Inject Secrets and Run
+                  identifier: inject_and_run
+                  spec:
+                    shell: Bash
+                    command: |
+                      #!/bin/bash
+                      set -e
+
+                      echo "=== Injecting Secrets into .env ==="
+
+                      # Copy template to .env
+                      cp .env.example .env
+
+                      # Replace secret placeholders with actual values
+                      sed -i "s/__SECRET_GH_PAT__/${GH_PAT}/g" .env
+                      sed -i "s/__SECRET_SMTP_USER__/${SMTP_USER}/g" .env
+                      sed -i "s/__SECRET_SMTP_PASSWORD__/${SMTP_PASSWORD}/g" .env
+                      sed -i "s/__SECRET_SMTP_FROM__/${SMTP_FROM}/g" .env
+
+                      echo "✓ Secrets injected successfully"
+
+                      # Show .env (with secrets masked)
+                      echo ""
+                      echo "=== .env file (secrets masked) ==="
+                      sed 's/GH_PAT=.*/GH_PAT=***MASKED***/; s/SMTP_PASSWORD=.*/SMTP_PASSWORD=***MASKED***/' .env
+
+                      echo ""
+                      echo "=== Building Docker Image ==="
+                      docker build -t github-audit:latest .
+
+                      echo ""
+                      echo "=== Creating Directories ==="
+                      mkdir -p audits logs/error
+
+                      echo ""
+                      echo "=== Running Audit Container ==="
+                      docker run --env-file .env \
+                        -v $(pwd)/audits:/app/audits \
+                        -v $(pwd)/logs:/app/logs \
+                        github-audit:latest
+
+                      echo ""
+                      echo "=== Audit Complete ==="
+                      ls -lh audits/
+                    envVariables:
+                      GH_PAT: <+secrets.getValue("gh_pat")>
+                      SMTP_USER: <+secrets.getValue("smtp_user")>
+                      SMTP_PASSWORD: <+secrets.getValue("smtp_password")>
+                      SMTP_FROM: <+secrets.getValue("smtp_from")>
+                    privileged: true
