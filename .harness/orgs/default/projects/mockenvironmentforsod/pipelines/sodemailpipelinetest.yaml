@@ -25,7 +25,7 @@ pipeline:
             spec:
               type: Pool
               spec:
-                poolName: _docker_test_delegate
+                poolName: docker_delegate
                 os: Linux
           execution:
             steps:
@@ -76,8 +76,8 @@ pipeline:
                       echo "=== Audit Complete ==="
                       ls -lh audits/
                     envVariables:
-                      GH_PAT: <+account.secrets.getValue("gh_pat")>
-                      SMTP_USER: <+account.secrets.getValue("smtp_user")>
-                      SMTP_PASSWORD: <+account.secrets.getValue("smtp_password")>
-                      SMTP_FROM: <+account.secrets.getValue("smtp_from")>
+                      GH_PAT: <+secrets.getValue("account.gh_pat")>
+                      SMTP_USER: <+secrets.getValue("account.smtp_user")>
+                      SMTP_PASSWORD: <+secrets.getValue("account.smtp_password")>
+                      SMTP_FROM: <+secrets.getValue("account.smtp_from")>
                     privileged: true
