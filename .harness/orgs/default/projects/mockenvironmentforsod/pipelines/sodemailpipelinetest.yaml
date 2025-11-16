@@ -25,7 +25,7 @@ pipeline:
             spec:
               type: Pool
               spec:
-                poolName: docker_delegate
+                poolName: docker-delegate
                 os: Linux
           execution:
             steps:
